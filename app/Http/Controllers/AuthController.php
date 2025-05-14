@@ -13,22 +13,20 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required'
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->first();
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('authToken')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Login successful',
-                'token' => $token,
-                'user' => $user,
-            ]);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'Credenciales no válidas'], 401);
         }
 
-        return response()->json(['message' => 'Unauthorized'], 401);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Inicio de sesión exitoso',
+            'token' => $token,
+        ]);
     }
 }
