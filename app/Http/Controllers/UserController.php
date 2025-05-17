@@ -14,6 +14,7 @@ class UserController extends Controller
 {
     public function registerRecolector(Request $request)
     {
+        Log::info('Iniciando registro de recolector.');
         $startTime = microtime(true);
 
         $request->validate([
@@ -23,6 +24,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed'
         ]);
+        Log::info('Validación completada.');
 
         DB::beginTransaction();
         try {
@@ -34,22 +36,22 @@ class UserController extends Controller
                 'remember_token' => Str::random(10),
                 'email_verified_at' => now()
             ]);
-
+            Log::info('Usuario creado.');
             // Crear el registro en la tabla 'usuarios' y obtener su ID
             $usuarioId = DB::table('usuarios')->insertGetId([
                 'nombre' => $request->name,
                 'cedula' => $request->cedula,
                 'numero' => $request->numero
             ]);
-
+            Log::info('Recolector registrado con ID: ' . $usuarioId);
             // Asignar el rol de recolector en la tabla 'usuario_rol'
             UsuarioRol::create([
                 'id_usuario' => $usuarioId,
                 'id_roles' => 2
             ]);
-
+            Log::info('Rol de recolector asignado a ID: ' . $usuarioId);
             DB::commit();
-
+            Log::info('Registro de recolector finalizado correctamente.');
             $endTime = microtime(true);
             Log::info('Tiempo de ejecución registro recolector: ' . ($endTime - $startTime) . ' segundos');
 
@@ -68,23 +70,36 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'cedula' => 'required|string|max:20|unique:usuarios',
+            'cedula' => 'required|string|max:20',
             'numero' => 'required|string|max:20',
             'precio_litro' => 'required|numeric|min:0',
-            'id_recolector' => 'required|exists:usuarios,id'
+            'id_recolector' => 'required|exists:usuarios,id_usuario'
         ]);
-
+    
         try {
             DB::beginTransaction();
-
-            // Crear el registro en `usuarios`
-            $productorId = DB::table('usuarios')->insertGetId([
-                'nombre' => $request->name,
-                'cedula' => $request->cedula,
-                'numero' => $request->numero,
-            ]);
-
-            // Crear el registro en `precio_productores_recolector`
+    
+            // Verificar si el productor ya existe
+            $productor = DB::table('usuarios')->where('cedula', $request->cedula)->first();
+    
+            if (!$productor) {
+                // Si no existe, crearlo
+                $productorId = DB::table('usuarios')->insertGetId([
+                    'nombre' => $request->name,
+                    'cedula' => $request->cedula,
+                    'numero' => $request->numero
+                ]);
+    
+                // Asignar rol productor
+                UsuarioRol::create([
+                    'id_usuario' => $productorId,
+                    'id_roles' => 3
+                ]);
+            } else {
+                $productorId = $productor->id_usuario;
+            }
+    
+            // Crear la relación en `precio_productores_recolector`
             DB::table('precio_productores_recolector')->insert([
                 'id_productor' => $productorId,
                 'id_recolector' => $request->id_recolector,
@@ -92,18 +107,21 @@ class UserController extends Controller
                 'fecha_inicio' => now(),
                 'fecha_fin' => null
             ]);
-
+    
             DB::commit();
-
+    
             return response()->json([
                 'message' => 'Productor registrado exitosamente',
                 'productor_id' => $productorId
             ], 201);
-
+    
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error registrando productor: ' . $e->getMessage());
             return response()->json(['error' => 'Error al registrar el productor'], 500);
         }
     }
+    
+    
+
 }
