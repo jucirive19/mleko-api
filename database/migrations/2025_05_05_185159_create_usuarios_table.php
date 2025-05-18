@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('usuarios', function (Blueprint $table) {
         $table->id('id_usuario');      // clave primaria
         $table->string('nombre', 50);
-        $table->integer('cedula');
+        $table->unsignedBigInteger('cedula');
         $table->unsignedBigInteger('numero');
         $table->timestamps();          // created_at y updated_at
     });

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->integer('cantidad_litros');
             $table->integer('precio_litro');
+            $table->unsignedBigInteger('valor_total');
             $table->timestamps();
 
             $table->foreign('id_productor')->references('id_usuario')->on('usuarios')->onDelete('cascade');
