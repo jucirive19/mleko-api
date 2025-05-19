@@ -42,7 +42,7 @@ class VentaController extends Controller
             'fecha' => now(),
             'cantidad_litros' => $request->cantidad_litros,
             'precio_litro' => $precio,
-            'valor_total' => $valorTotal,
+            'total_venta' => $valorTotal,
         ]);
 
         DB::commit();
@@ -50,7 +50,7 @@ class VentaController extends Controller
 
         return response()->json([
             'message' => 'Venta registrada exitosamente',
-            'valor_total' => $valorTotal
+            'total_venta' => $valorTotal
         ], 201);
     } catch (\Exception $e) {
         DB::rollBack();

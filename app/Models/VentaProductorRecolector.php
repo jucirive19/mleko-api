@@ -15,6 +15,6 @@ class VentaProductorRecolector extends Model
         'fecha',
         'cantidad_litros',
         'precio_litro',
-        'valor_total' 
+        'total_venta' 
     ];
 }

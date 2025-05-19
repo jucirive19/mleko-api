@@ -17,9 +17,5 @@ Route::middleware('api')->group(function () {
     Route::post('/register/productor', [UserController::class, 'registerProductor']);
     Route::post('/venta', [VentaController::class, 'registrarVenta']);
     Route::get('/informes/recolector', [InformeController::class, 'obtenerInformeRecolector']);
-
-    
-
-
-
+    Route::get('/informe/detallado', [InformeController::class, 'obtenerInformeDetallado']);
 });
