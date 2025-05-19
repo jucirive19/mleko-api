@@ -18,4 +18,7 @@ Route::middleware('api')->group(function () {
     Route::post('/venta', [VentaController::class, 'registrarVenta']);
     Route::get('/informes/recolector', [InformeController::class, 'obtenerInformeRecolector']);
     Route::get('/informe/detallado', [InformeController::class, 'obtenerInformeDetallado']);
+    Route::get('informes/recolector/general', [InformeController::class, 'obtenerInformeGeneralRecolector']);
+    
+
 });

@@ -47,7 +47,7 @@ class InformeController extends Controller
     }
 
     public function obtenerInformeDetallado(Request $request)
-{
+    {
     Log::info('Iniciando obtención del informe detallado.');
 
     $request->validate([
@@ -91,5 +91,45 @@ class InformeController extends Controller
         Log::error('Error al obtener el informe detallado: ' . $e->getMessage());
         return response()->json(['error' => 'Error al obtener el informe detallado'], 500);
     }
-}    
+    }    
+    
+    public function obtenerInformeGeneralRecolector(Request $request)
+    {
+    Log::info('Iniciando obtención del informe general del recolector.');
+
+    $request->validate([
+        'id_recolector' => 'required|exists:usuarios,id_usuario',
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+    ]);
+
+    try {
+        $idRecolector = $request->id_recolector;
+        $fechaInicio = $request->fecha_inicio;
+        $fechaFin = $request->fecha_fin;
+
+        Log::info("Recolector ID: $idRecolector, Fecha Inicio: $fechaInicio, Fecha Fin: $fechaFin");
+
+        $informe = DB::table('venta_productores_recolector as v')
+            ->select(
+                DB::raw('SUM(v.cantidad_litros) as total_litros'),
+                DB::raw('SUM(v.total_venta) as total_pagado'),
+                DB::raw('AVG(v.precio_litro) as precio_promedio'),
+                DB::raw('COUNT(DISTINCT v.id_productor) as productores_activos')
+            )
+            ->where('v.id_recolector', $idRecolector)
+            ->whereBetween('v.fecha', [$fechaInicio, $fechaFin])
+            ->first();
+
+        return response()->json([
+            'message' => 'Informe general del recolector generado con éxito',
+            'data' => $informe
+        ], 200);
+
+    } catch (\Exception $e) {
+        Log::error('Error al obtener el informe general del recolector: ' . $e->getMessage());
+        return response()->json(['error' => 'Error al obtener el informe general del recolector'], 500);
+    }
+    }
+    
 }
