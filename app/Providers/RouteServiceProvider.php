@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use App\Http\Middleware\EnsureIsEmpresa;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -17,13 +18,14 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define your route model bindings, pattern filters, etc.
      */
+    
     public function boot(): void
     {
         $this->configureRateLimiting();
 
         $this->routes(function () {
             Route::prefix('api')
-                ->middleware('api')
+                ->middleware(['api']) // 👈 solo api aquí un error XD
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
@@ -32,7 +34,6 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
         });
     }
-
     /**
      * Configure the rate limiters for the application.
      */
