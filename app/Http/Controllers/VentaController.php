@@ -59,4 +59,36 @@ class VentaController extends Controller
     }
     }
 
+    public function ventasrecolector(Request $request){
+        $request->validate([
+            'id_empresa' => 'required|exists:empresas,id_empresa',
+            'id_recolector' => 'required|exists:usuarios,id_usuario',
+            'cantidad_litros' => 'required|numeric|min:0',
+            'precio_litro' => 'required|numeric|min:0',
+        ]);
+        DB::beginTransaction();
+        try {
+            DB::table('venta_recolector_empresas')->insert([
+                'id_empresa' => $request->id_empresa,
+                'id_recolector' => $request->id_recolector,
+                'fecha' => now(),
+                'cantidad_litros' => $request->cantidad_litros,
+                'precio_litro' => $request->precio_litro,
+                'venta_total' => $request->cantidad_litros * $request->precio_litro,
+            ]);
+
+            DB::commit();
+            Log::info('Venta registrada exitosamente.');
+
+            return response()->json([
+                'message' => 'Venta registrada exitosamente',
+                'total_venta' => $request->cantidad_litros * $request->precio_litro
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al registrar la venta: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al registrar la venta'], 500);
+        }
+
+    }
 }

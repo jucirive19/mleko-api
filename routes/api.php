@@ -20,7 +20,7 @@ Route::get('/test', function () {
 */
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
+    
 });
 
 /*
@@ -39,7 +39,8 @@ Route::prefix('users')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('ventas')->group(function () {
-    Route::post('/', [VentaController::class, 'registrarVenta']);
+    Route::post('/productor', [VentaController::class, 'registrarVenta']);
+    Route::post('/recolector', [VentaController::class, 'ventasrecolector']);
 });
 
 /*
@@ -61,4 +62,5 @@ Route::prefix('informes')->group(function () {
 Route::prefix('empresa')->group(function () {
     Route::post('/register', [EmpresaController::class, 'register']);
     Route::post('/login', [EmpresaController::class, 'login']);
+    
 });

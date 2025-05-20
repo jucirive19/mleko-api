@@ -12,22 +12,17 @@ class EnsureIsEmpresa
      * Handle an incoming request.
      */
     public function handle($request, Closure $next)
-{
-    $user = Auth::user();
+    {
+        // El middleware 'auth' ya verificó la autenticación
+        $user = $request->user();
+        
+        // Verificar si el usuario tiene empresa asociada
+        if (!$user->empresa) { // Asumiendo que tienes una relación definida
+            return response()->json([
+                'message' => 'Acceso denegado. Solo para empresas registradas.'
+            ], 403);
+        }
 
-    // Si no hay usuario autenticado, devolver error
-    if (!$user) {
-        return response()->json(['error' => 'No autenticado.'], 401);
+        return $next($request);
     }
-
-    // Verificar si el usuario tiene un registro asociado en la tabla 'empresa'
-    $empresa = Empresa::where('user_id', $user->id)->first();
-
-    if (!$empresa) {
-        return response()->json(['error' => 'Acceso no autorizado. No es una empresa registrada.'], 403);
-    }
-
-    return $next($request);
-}
-
 }
