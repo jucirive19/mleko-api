@@ -1,28 +1,32 @@
-# Usar la imagen oficial de PHP con Apache
+# Usa PHP con Apache
 FROM php:8.2-apache
 
-# Instalar extensiones necesarias para Laravel
-RUN docker-php-ext-install pdo pdo_mysql
+# Instala extensiones necesarias de PHP y utilidades
+RUN apt-get update && apt-get install -y \
+    libzip-dev zip unzip git curl \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# Instalar unzip para Composer
-RUN apt-get update && \
-    apt-get install -y unzip curl
+# Instala Composer globalmente
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Instalar Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Establecer el directorio de trabajo
-WORKDIR /var/www/html
-
-# Copiar el código fuente al contenedor
+# Copia archivos de Laravel
 COPY . /var/www/html
 
-# Instalar dependencias de Composer
+# Establece el working directory
+WORKDIR /var/www/html
+
+# Instala dependencias de Composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Establecer los permisos
+# Da permisos correctos a storage y bootstrap
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
+
+# Habilita el mod_rewrite de Apache (requerido por Laravel)
+RUN a2enmod rewrite
+
+# Configura Apache para usar Laravel correctamente
+COPY ./apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Exponer el puerto 8000
 EXPOSE 8000
