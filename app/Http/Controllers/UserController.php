@@ -39,9 +39,11 @@ class UserController extends Controller
             Log::info('Usuario creado.');
             // Crear el registro en la tabla 'usuarios' y obtener su ID
             $usuarioId = DB::table('usuarios')->insertGetId([
+                'user_id' => $user->id,
                 'nombre' => $request->name,
                 'cedula' => $request->cedula,
                 'numero' => $request->numero
+                
             ]);
             Log::info('Recolector registrado con ID: ' . $usuarioId);
             // Asignar el rol de recolector en la tabla 'usuario_rol'

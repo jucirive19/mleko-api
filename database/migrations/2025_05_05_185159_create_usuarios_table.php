@@ -13,10 +13,12 @@ return new class extends Migration
 {
     Schema::create('usuarios', function (Blueprint $table) {
         $table->id('id_usuario');      // clave primaria
+        $table->unsignedBigInteger('user_id');
         $table->string('nombre', 50);
         $table->unsignedBigInteger('cedula');
         $table->unsignedBigInteger('numero');
         $table->timestamps();          // created_at y updated_at
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
     });
 }
 

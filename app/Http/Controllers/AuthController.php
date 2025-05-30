@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 class AuthController extends Controller
 {
     public function login(Request $request)
-{
+    {
     $startTime = microtime(true);
 
     $request->validate([
@@ -27,6 +29,7 @@ class AuthController extends Controller
     }
 
     $token = $user->createToken('auth_token')->plainTextToken;
+    $usuario = DB::table('usuarios')->where('user_id', $user->id)->first();
 
     $endTime = microtime(true);
     Log::info('Tiempo de ejecución login (exitoso): ' . ($endTime - $startTime) . ' segundos');
@@ -34,40 +37,41 @@ class AuthController extends Controller
     return response()->json([
         'message' => 'Inicio de sesión exitoso',
         'token' => $token,
+        'id_usuario' => $usuario->id_usuario ?? null,
     ]);
-}
+    }
 
-public function register(Request $request)
-{
-    $startTime = microtime(true);
+    public function register(Request $request)
+    {
+        $startTime = microtime(true);
 
-    // Validar los datos del registro
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed'
-    ]);
+        // Validar los datos del registro
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
 
-    // Crear el nuevo usuario
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'remember_token' => \Illuminate\Support\Str::random(10),
-        'email_verified_at' => now()
-    ]);
+        // Crear el nuevo usuario
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'remember_token' => \Illuminate\Support\Str::random(10),
+            'email_verified_at' => now()
+        ]);
 
-    // Generar token de autenticación
-    $token = $user->createToken('auth_token')->plainTextToken;
+        // Generar token de autenticación
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-    $endTime = microtime(true);
-    Log::info('Tiempo de ejecución registro: ' . ($endTime - $startTime) . ' segundos');
+        $endTime = microtime(true);
+        Log::info('Tiempo de ejecución registro: ' . ($endTime - $startTime) . ' segundos');
 
-    return response()->json([
-        'message' => 'Usuario registrado exitosamente',
-        'user' => $user,
-        'token' => $token
-    ], 201);
-}
+        return response()->json([
+            'message' => 'Usuario registrado exitosamente',
+            'user' => $user,
+            'token' => $token
+        ], 201);
+    }
 
 }
