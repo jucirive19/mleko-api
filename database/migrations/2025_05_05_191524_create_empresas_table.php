@@ -16,7 +16,10 @@ return new class extends Migration
             $table->bigInteger('nit');
             $table->string('matricula_mercantil', 50);
             $table->string('nombre', 50);
+            $table->unsignedBigInteger('user_id')->unique();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

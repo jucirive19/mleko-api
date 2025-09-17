@@ -15,10 +15,10 @@ class EmpresasSeeder extends Seeder
     public function run(): void
     {
         DB::table('empresas')->insert([
-            'nit'=>'7845612348',
-            'matricula_mercantil'=>'417852963',
-            'nombre'=>'empresa de prueba',
-            
+            'nit' => '123456789',
+            'matricula_mercantil' => '987654321',
+            'nombre' => 'Empresa 1',
+            'user_id' => 4  // ID del usuario que creamos en UserSeeder
         ]);
     }
 }

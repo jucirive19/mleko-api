@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id('id_precio_venta_productores');
             $table->unsignedBigInteger('id_productor');
             $table->unsignedBigInteger('id_recolector');
-            $table->date('fecha');
-            $table->integer('cantidad_litros');
+            $table->date('fecha_inicio');
+            $table->date('fecha_fin');
             $table->integer('precio_litro');
             $table->timestamps();
 
